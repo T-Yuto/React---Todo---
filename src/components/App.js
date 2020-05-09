@@ -60,6 +60,7 @@ class App extends React.Component {
                                 text={text}
                                 completed={completed}
                                 onChange={this.handleChangeCompleted}
+                                onDelete={this.handleClickDelete}
                             />
                         </li>
                     ))}
@@ -74,12 +75,19 @@ class App extends React.Component {
         this.setState({ filter })
     };
 
+    handleClickDelete = id => {
+        //わたされたidと違うものだけを代入
+        const newTodos = this.state.todos.filter(todo => todo.id !== id)
+        this.setState({ todos: newTodos });
+    }
+
     handleSubmit = text => {
         const newTodo = {
             id: currentId,
             text,
             completed: false,
-        }
+            editing: false,
+        };
         const newTodos = [...this.state.todos, newTodo]
         this.setState({ todos: newTodos })
         currentId++;
