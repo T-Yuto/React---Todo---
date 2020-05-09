@@ -4,6 +4,7 @@ import Form from "./Form";
 import Todo from "./Todo";
 import CheckAll from "./CheckAll";
 import Filter from "./Filter";
+import EditTodo from "./EditTodo";
 
 let currentId = 0
 
@@ -53,15 +54,24 @@ class App extends React.Component {
                 />
 
                 <ul>
-                    {filteredTodos.map(({ id, text, completed }) => (
+                    {filteredTodos.map(({ id, text, completed, editing }) => (
                         <li key={id}>
-                            <Todo
-                                id={id}
-                                text={text}
-                                completed={completed}
-                                onChange={this.handleChangeCompleted}
-                                onDelete={this.handleClickDelete}
-                            />
+                            {editing ? (
+                                <EditTodo
+                                    id={id}
+                                    text={text}
+                                    onCancel={this.handleChangeTodoAttribute}
+                                    onSubmit={this.handleUpdateTodoText}
+                                />
+                            ) : (
+                                    <Todo
+                                        id={id}
+                                        text={text}
+                                        completed={completed}
+                                        onChange={this.handleChangeTodoAttribute}
+                                        onDelete={this.handleClickDelete}
+                                    />
+                                )}
                         </li>
                     ))}
                 </ul>
@@ -69,6 +79,21 @@ class App extends React.Component {
                 <button onClick={this.handleClickDeletCompleted}>完了済みを全て削除</button>
             </div>
         );
+    }
+
+    handleUpdateTodoText = (id, text) => {
+        const newTodos = this.state.todos.map(todo => {
+            if (todo.id === id) {
+                return {
+                    ...todo,
+                    text,
+                    editing: false
+                };
+            }
+
+            return todo;
+        });
+        this.setState({ todos: newTodos });
     }
 
     handleChangeFilter = filter => {
@@ -102,12 +127,12 @@ class App extends React.Component {
         this.setState({ todos: newTodos })
     }
 
-    handleChangeCompleted = (id, completed) => {
+    handleChangeTodoAttribute = (id, key, value) => {
         const newTodos = this.state.todos.map(todo => {
             if (todo.id === id) {
                 return {
                     ...todo,
-                    completed,
+                    [key]: value
                 }
             }
 
