@@ -1,22 +1,22 @@
 import React from "react";
 
-class Form extends React.Component{
+class Form extends React.Component {
 
     constructor(props) {
         super(props)
 
-        this.state= {
+        this.state = {
             input: ""
         };
     }
 
     render() {
-        return(
+        return (
             <form onSubmit={this.handleSubmit}>
                 <input
-                  type="text"
-                  value={this.state.input}
-                  onChange={this.handleChange}
+                    type="text"
+                    value={this.state.input}
+                    onChange={this.handleChange}
                 />
                 <button>追加</button>
             </form>

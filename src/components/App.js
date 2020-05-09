@@ -2,6 +2,8 @@ import React from "react";
 
 import Form from "./Form";
 import Todo from "./Todo";
+import CheckAll from "./CheckAll";
+import Filter from "./Filter";
 
 let currentId = 0
 
@@ -11,48 +13,106 @@ class App extends React.Component {
         super(props);
 
         this.state = {
+            filter: "all",
             todos: []
         };
     }
 
     render() {
+        const { todos, filter } = this.state;
+        const filteredTodos = todos.filter(({ completed }) => {
+            switch (filter) {
+                case "all":
+                    return true;
+
+                case "uncompleted":
+                    return !completed;
+
+                case "completed":
+                    return completed;
+
+                default:
+                    return true;
+            }
+        });
+
         return (
-        <div>
-            <Form onSubmit={this.handleSubmit} />
+            <div>
+                <Form onSubmit={this.handleSubmit} />
 
-            <label>
-                <input type="checkbox" />
-                全て完了にする
-            </label>
+                <CheckAll
+                    allCompleted={
+                        todos.length > 0 && todos.every(({ completed }) => completed)
+                    }
+                    onChange={this.handleChangeAllCompleted}
+                />
 
-            <select>
-                <option>全て</option>
-                <option>未完了</option>
-                <option>完了済み</option>
-            </select>
+                <Filter
+                    filter={filter}
+                    onChange={this.handleChangeFilter}
+                />
 
-          <ul>
-              {this.state.todos.map(({ id, text }) => (
-                  <li key={id}>
-                      <Todo text={text} />
-                  </li>
-              ))}
-          </ul>
+                <ul>
+                    {filteredTodos.map(({ id, text, completed }) => (
+                        <li key={id}>
+                            <Todo
+                                id={id}
+                                text={text}
+                                completed={completed}
+                                onChange={this.handleChangeCompleted}
+                            />
+                        </li>
+                    ))}
+                </ul>
 
-            <button>完了済みを全て削除</button>
-        </div>
+                <button onClick={this.handleClickDeletCompleted}>完了済みを全て削除</button>
+            </div>
         );
     }
+
+    handleChangeFilter = filter => {
+        this.setState({ filter })
+    };
 
     handleSubmit = text => {
         const newTodo = {
             id: currentId,
             text,
+            completed: false,
         }
         const newTodos = [...this.state.todos, newTodo]
-        this.setState({ todos: newTodo })
+        this.setState({ todos: newTodos })
         currentId++;
     };
+
+    handleChangeAllCompleted = completed => {
+        const newTodos = this.state.todos.map(todo => ({
+            //return(...todo,completed,); を省略
+            ...todo,
+            completed,
+        }));
+        this.setState({ todos: newTodos })
+    }
+
+    handleChangeCompleted = (id, completed) => {
+        const newTodos = this.state.todos.map(todo => {
+            if (todo.id === id) {
+                return {
+                    ...todo,
+                    completed,
+                }
+            }
+
+            return todo
+        })
+
+        this.setState({ todos: newTodos })
+    };
+
+    handleClickDeletCompleted = () => {
+        const newTodos = this.state.todos.filter(({ completed }) => !completed)
+        this.setState({ todos: newTodos })
+    }
 }
 
 export default App;
